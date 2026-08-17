@@ -128,23 +128,20 @@ if not st.session_state.game_started:
     
     if st.button("🚀 Draft starten (4 Booster, 80 Spieler)", type="primary"):
         players = load_players()
-        random.shuffle(players)  # Alle 80 Spieler einmalig mischen
+        random.shuffle(players)
         
-        # 4 Booster à 20 Spieler aufteilen (4 Spieler x 5 Karten pro Booster)
         for b in range(1, 5):
             st.session_state.all_boosters[b] = {}
             for p in range(4):
                 start_idx = (b - 1) * 20 + p * 5
                 st.session_state.all_boosters[b][p] = players[start_idx : start_idx + 5]
         
-        # Booster 1 laden
         st.session_state.current_packs = st.session_state.all_boosters[1].copy()
         st.session_state.game_started = True
         st.rerun()
 
 # Aktiver Draft
 elif st.session_state.booster_num <= 4:
-    # MTG-Drehrichtung: Wechselt pro Booster
     direction_text = "➡️ Nach links" if st.session_state.booster_num % 2 != 0 else "⬅️ Nach rechts"
     st.header(f"📦 Booster {st.session_state.booster_num} / 4 — Pick {st.session_state.pick_num} / 5 ({direction_text})")
     st.subheader(f"Du spielst als: **Spieler {player_id + 1}**")
@@ -169,17 +166,22 @@ elif st.session_state.booster_num <= 4:
         for idx, card in enumerate(my_pack):
             with cols[idx]:
                 with st.container(border=True):
-                    st.subheader(card['name'])
-                    st.write(f"Pos: | Club:")
-                    st.metric(label="Stärke", value=f"⭐ {card['rating']}")
+                    # Name hervorgehoben
+                    st.markdown(f"### {card['name']}")
+                    
+                    # Position und Verein deutlich sichtbar als Farb-Badges
+                    st.markdown(f"📍 **Position:** `{card['pos']}`")
+                    st.markdown(f"🛡️ **Verein: **")
+                    
+                    # Stärke groß als Metric
+                    st.metric(label="Gesamtstärke", value=f"⭐ {card['rating']}")
                     
                     btn_key = f"b{st.session_state.booster_num}_p{st.session_state.pick_num}_{card['id']}"
-                    if st.button(f"Pick {card['name']}", key=btn_key):
+                    if st.button(f"Pick", key=btn_key, type="primary", use_container_width=True):
                         st.session_state.teams[player_id].append(card)
                         st.session_state.picks_made[player_id] = card
                         st.rerun()
 
-    # Auswertung, wenn alle 4 Spieler gewählt haben
     if all(pick is not None for pick in st.session_state.picks_made.values()):
         for p_id in range(4):
             picked_card = st.session_state.picks_made[p_id]
@@ -187,7 +189,6 @@ elif st.session_state.booster_num <= 4:
                 c for c in st.session_state.current_packs[p_id] if c['id'] != picked_card['id']
             ]
         
-        # Prüfen, ob der aktuelle Booster leer ist
         if len(st.session_state.current_packs[0]) == 0:
             st.session_state.booster_num += 1
             st.session_state.pick_num = 1
@@ -195,13 +196,12 @@ elif st.session_state.booster_num <= 4:
                 st.session_state.current_packs = st.session_state.all_boosters[st.session_state.booster_num].copy()
                 st.toast(f"🎉 Booster {st.session_state.booster_num - 1} fertig! Öffne Booster {st.session_state.booster_num}...")
         else:
-            # Packs im Kreis weitergeben
             old_packs = st.session_state.current_packs.copy()
             for p_id in range(4):
                 if st.session_state.booster_num % 2 != 0:
-                    st.session_state.current_packs[(p_id + 1) % 4] = old_packs[p_id]  # Links
+                    st.session_state.current_packs[(p_id + 1) % 4] = old_packs[p_id]
                 else:
-                    st.session_state.current_packs[(p_id - 1) % 4] = old_packs[p_id]  # Rechts
+                    st.session_state.current_packs[(p_id - 1) % 4] = old_packs[p_id]
             
             st.session_state.pick_num += 1
 
@@ -219,14 +219,13 @@ elif st.session_state.booster_num <= 4:
             with team_cols[i]:
                 st.write(f"**{pos}:**")
                 for p in [x for x in my_team if x['pos'] == pos]:
-                    st.write(f"• {p['name']} ({p['rating']})")
+                    st.write(f"• **{p['name']}** ({p['rating']}) — *{p['club']}*")
 
 # Endbildschirm & Aufstellung
 else:
     st.balloons()
     st.success("🏆 **DRAFT BEENDET!** Alle 80 Spieler wurden gedraftet.")
     
-    # Zufällige Formationen zuteilen
     formations = ["4-3-3", "4-4-2", "3-5-2", "4-2-3-1"]
     if not st.session_state.assigned_formations:
         shuffled_forms = formations.copy()
@@ -276,4 +275,4 @@ else:
             st.write(f"**Gedraftete Spieler:** {len(st.session_state.teams[p_id])}")
             with st.expander("Kader anzeigen"):
                 for p in st.session_state.teams[p_id]:
-                    st.write(f"• {p['name']} ({p['pos']}, {p['rating']})")
+                    st.write(f"• **{p['name']}** ({p['pos']}, {p['rating']}) — *{p['club']}*")
