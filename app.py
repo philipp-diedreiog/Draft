@@ -171,7 +171,7 @@ elif st.session_state.booster_num <= 4:
                     
                     # Position und Verein deutlich sichtbar als Farb-Badges
                     st.markdown(f"📍 **Position:** `{card['pos']}`")
-                    st.markdown(f"🛡️ **Verein: **")
+                    st.markdown(f"🛡️ **Verein: **`{card['club']}`")
                     
                     # Stärke groß als Metric
                     st.metric(label="Gesamtstärke", value=f"⭐ {card['rating']}")
