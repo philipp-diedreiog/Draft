@@ -1,3 +1,8 @@
+from streamlit_autorefresh import st_autorefresh
+
+# Lädt die Seite alle 3 Sekunden automatisch neu, um Eingaben der anderen zu sehen
+st_autorefresh(interval=3000, key="draft_refresh")
+
 import streamlit as st
 import random
 
