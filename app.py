@@ -130,6 +130,7 @@ if 'game_started' not in st.session_state:
     st.session_state.picks_made = {0: None, 1: None}
     st.session_state.booster_num = 1
     st.session_state.pick_num = 1
+    st.session_state.lineups = {0: {}, 1: {}}
 
 st.title("⚽ Ö-Bundesliga Draft (2-Spieler Testmodus)")
 
@@ -149,6 +150,7 @@ if st.sidebar.button("Draft komplett zurücksetzen"):
     st.session_state.picks_made = {0: None, 1: None}
     st.session_state.booster_num = 1
     st.session_state.pick_num = 1
+    st.session_state.lineups = {0: {}, 1: {}}
     st.rerun()
 
 # Spielstart
@@ -159,7 +161,6 @@ if not st.session_state.game_started:
         players = load_players()
         random.shuffle(players)
         
-        # 2 Booster für 2 Spieler (2 Spieler * 7 Karten = 14 Karten pro Booster)
         for b in range(1, 3):
             st.session_state.all_boosters[b] = {}
             for p in range(2):
@@ -170,7 +171,7 @@ if not st.session_state.game_started:
         st.session_state.game_started = True
         st.rerun()
 
-# Aktiver Draft (2 Spieler)
+# Aktiver Draft
 elif st.session_state.booster_num <= 2:
     st.header(f"📦 Booster {st.session_state.booster_num} / 2 — Pick {st.session_state.pick_num} / 7")
     st.subheader(f"Du spielst als: **Spieler {player_id + 1}**")
@@ -223,7 +224,6 @@ elif st.session_state.booster_num <= 2:
                 st.session_state.current_packs = st.session_state.all_boosters[st.session_state.booster_num].copy()
                 st.toast(f"🎉 Booster 1 fertig! Starte Booster 2...")
         else:
-            # Bei 2 Spielern werden die Packs einfach getauscht
             old_packs = st.session_state.current_packs.copy()
             st.session_state.current_packs[0] = old_packs[1]
             st.session_state.current_packs[1] = old_packs[0]
@@ -232,7 +232,6 @@ elif st.session_state.booster_num <= 2:
         st.session_state.picks_made = {0: None, 1: None}
         st.rerun()
 
-    # Zwischenstand-Kader
     st.divider()
     st.subheader(f"Dein bisheriger Kader ({len(st.session_state.teams[player_id])} / 14 Spieler):")
     my_team = st.session_state.teams[player_id]
@@ -245,85 +244,122 @@ elif st.session_state.booster_num <= 2:
                 for p in [x for x in my_team if x['pos'] == pos]:
                     st.write(f"• **{p['name']}** (*{p['club']}*)")
 
-# Endbildschirm & Aufstellung auf dem Spielfeld (4-3-3)
+# Endbildschirm & Aufstellung auf dem Spielfeld
 else:
     st.success("🏆 **DRAFT BEENDET!** Alle Booster wurden gewählt.")
-    st.header("📋 Aufstellungs-Phase (Formation: 4-3-3)")
+    st.header(f"📋 Aufstellungs-Phase — Spieler {player_id + 1}")
     
     my_team = st.session_state.teams[player_id]
-    
-    tw_list = [p['name'] for p in my_team if p['pos'] == 'TW']
-    ver_list = [p['name'] for p in my_team if p['pos'] == 'VER']
-    mf_list = [p['name'] for p in my_team if p['pos'] == 'MF']
-    st_list = [p['name'] for p in my_team if p['pos'] == 'ST']
+    my_lineup = st.session_state.lineups[player_id]
 
-    st.subheader("🟢 Platziere deine Spieler auf dem Spielfeld:")
+    positions_keys = [
+        "st1", "st2", "st3",
+        "mf1", "mf2", "mf3",
+        "v1", "v2", "v3", "v4",
+        "tw"
+    ]
 
-    # CSS Styling für das virtuelle Fußballfeld
+    # Dynamische Filterung: Alle Spieler verfügbar, aber keine Mehrfachauswahl
+    def get_options_for_pos(current_pos_key):
+        selected_elsewhere = [
+            val for k, val in my_lineup.items() 
+            if k != current_pos_key and val != "-"
+        ]
+        available = [p['name'] for p in my_team if p['name'] not in selected_elsewhere]
+        return ["-"] + sorted(available)
+
+    # Detailliertes Fußballfeld via CSS
     st.markdown("""
         <style>
-        .pitch {
+        .pitch-container {
             background-color: #2e7d32;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.15) 2px, transparent 2px),
+                linear-gradient(90px, rgba(255,255,255,0.05) 50%, transparent 50%);
             border: 4px solid #ffffff;
             border-radius: 12px;
-            padding: 20px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+            padding: 25px 15px;
             position: relative;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
         }
-        .pitch-line {
-            border-bottom: 2px dashed rgba(255, 255, 255, 0.5);
-            margin: 15px 0;
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .pitch-divider {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            border-top: 2px solid rgba(255,255,255,0.4);
+            pointer-events: none;
+        }
+        .section-header {
+            text-align: center;
+            color: #ffffff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            font-weight: bold;
+            margin-bottom: 10px;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Fußballfeld
+    st.subheader("🟢 Platziere deine Start-11 auf dem Spielfeld (4-3-3):")
+
     with st.container():
-        st.markdown('<div class="pitch">', unsafe_allow_html=True)
+        st.markdown('<div class="pitch-container"><div class="center-circle"></div><div class="pitch-divider"></div>', unsafe_allow_html=True)
         
         # STÜRMER
-        st.markdown(f"<h4 style='text-align: center; color: white;'>STÜRMER</h4>", unsafe_allow_html=True)
+        st.markdown('<div class="section-header">⚽ STÜRMER</div>', unsafe_allow_html=True)
         col_st1, col_st2, col_st3 = st.columns(3)
         with col_st1:
-            st1 = st.selectbox("Stürmer 1", ["-"] + st_list, key="st1")
+            my_lineup["st1"] = st.selectbox("Stürmer 1", get_options_for_pos("st1"), key="st1_select")
         with col_st2:
-            st2 = st.selectbox("Stürmer 2", ["-"] + st_list, key="st2")
+            my_lineup["st2"] = st.selectbox("Stürmer 2", get_options_for_pos("st2"), key="st2_select")
         with col_st3:
-            st3 = st.selectbox("Stürmer 3", ["-"] + st_list, key="st3")
+            my_lineup["st3"] = st.selectbox("Stürmer 3", get_options_for_pos("st3"), key="st3_select")
 
-        st.markdown('<div class="pitch-line"></div>', unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
 
         # MITTELFELD
-        st.markdown(f"<h4 style='text-align: center; color: white;'>MITTELFELD</h4>", unsafe_allow_html=True)
+        st.markdown('<div class="section-header">🎯 MITTELFELD</div>', unsafe_allow_html=True)
         col_mf1, col_mf2, col_mf3 = st.columns(3)
         with col_mf1:
-            mf1 = st.selectbox("Mittelfeld 1", ["-"] + mf_list, key="mf1")
+            my_lineup["mf1"] = st.selectbox("Mittelfeld 1", get_options_for_pos("mf1"), key="mf1_select")
         with col_mf2:
-            mf2 = st.selectbox("Mittelfeld 2", ["-"] + mf_list, key="mf2")
+            my_lineup["mf2"] = st.selectbox("Mittelfeld 2", get_options_for_pos("mf2"), key="mf2_select")
         with col_mf3:
-            mf3 = st.selectbox("Mittelfeld 3", ["-"] + mf_list, key="mf3")
+            my_lineup["mf3"] = st.selectbox("Mittelfeld 3", get_options_for_pos("mf3"), key="mf3_select")
 
-        st.markdown('<div class="pitch-line"></div>', unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
 
-        # VERTEIDIGUNG
-        st.markdown(f"<h4 style='text-align: center; color: white;'>VERTEIDIGER</h4>", unsafe_allow_html=True)
+        # VERTEIDIGER
+        st.markdown('<div class="section-header">🛡️ VERTEIDIGER</div>', unsafe_allow_html=True)
         col_v1, col_v2, col_v3, col_v4 = st.columns(4)
         with col_v1:
-            v1 = st.selectbox("Verteidiger 1", ["-"] + ver_list, key="v1")
+            my_lineup["v1"] = st.selectbox("Verteidiger 1", get_options_for_pos("v1"), key="v1_select")
         with col_v2:
-            v2 = st.selectbox("Verteidiger 2", ["-"] + ver_list, key="v2")
+            my_lineup["v2"] = st.selectbox("Verteidiger 2", get_options_for_pos("v2"), key="v2_select")
         with col_v3:
-            v3 = st.selectbox("Verteidiger 3", ["-"] + ver_list, key="v3")
+            my_lineup["v3"] = st.selectbox("Verteidiger 3", get_options_for_pos("v3"), key="v3_select")
         with col_v4:
-            v4 = st.selectbox("Verteidiger 4", ["-"] + ver_list, key="v4")
+            my_lineup["v4"] = st.selectbox("Verteidiger 4", get_options_for_pos("v4"), key="v4_select")
 
-        st.markdown('<div class="pitch-line"></div>', unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
 
         # TORWART
-        st.markdown(f"<h4 style='text-align: center; color: white;'>TORWART</h4>", unsafe_allow_html=True)
+        st.markdown('<div class="section-header">🧤 TORWART</div>', unsafe_allow_html=True)
         _, col_tw, _ = st.columns([1, 2, 1])
         with col_tw:
-            tw = st.selectbox("Torwart", ["-"] + tw_list, key="tw")
+            my_lineup["tw"] = st.selectbox("Torwart", get_options_for_pos("tw"), key="tw_select")
 
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -334,9 +370,8 @@ else:
     for p_id in range(2):
         with all_team_cols[p_id]:
             st.markdown(f"### Spieler {p_id + 1}")
-            st.write(f"**Formation:** 4-3-3")
             st.write(f"**Gedraftete Spieler:** {len(st.session_state.teams[p_id])}")
-            with st.expander("Kader anzeigen"):
+            with st.expander("Gedrafteten Kader anzeigen"):
                 for p in st.session_state.teams[p_id]:
                     pos_color = POS_COLORS.get(p['pos'], '#000000')
                     st.markdown(
