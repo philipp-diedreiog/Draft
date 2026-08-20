@@ -9,90 +9,92 @@ import random
 # Seite konfigurieren
 st.set_page_config(page_title="Ö-Bundesliga Draft", layout="wide")
 
-# 80 einzigartige Spieler aus deinen Quelldaten
 @st.cache_data
 def load_players():
     return [
-        {"id": 1, "name": "Alexander Schlager", "club": "RB Salzburg", "pos": "TW", "rating": 82},
-        {"id": 2, "name": "Samson Baidoo", "club": "RB Salzburg", "pos": "DEF", "rating": 79},
-        {"id": 3, "name": "Amar Dedic", "club": "RB Salzburg", "pos": "DEF", "rating": 82},
-        {"id": 4, "name": "Mads Bidstrup", "club": "RB Salzburg", "pos": "MID", "rating": 80},
-        {"id": 5, "name": "Maurits Kjaergaard", "club": "RB Salzburg", "pos": "MID", "rating": 81},
-        {"id": 6, "name": "Oscar Gloukh", "club": "RB Salzburg", "pos": "MID", "rating": 84},
-        {"id": 7, "name": "Karim Konate", "club": "RB Salzburg", "pos": "FWD", "rating": 83},
-        {"id": 8, "name": "Dorgeles Nene", "club": "RB Salzburg", "pos": "FWD", "rating": 79},
-        {"id": 9, "name": "Petar Ratkov", "club": "RB Salzburg", "pos": "FWD", "rating": 77},
-        {"id": 10, "name": "Joane Gadou", "club": "RB Salzburg", "pos": "DEF", "rating": 76},
-        {"id": 11, "name": "Kjell Scherpen", "club": "Sturm Graz", "pos": "TW", "rating": 81},
-        {"id": 12, "name": "Gregory Wüthrich", "club": "Sturm Graz", "pos": "DEF", "rating": 80},
-        {"id": 13, "name": "Jusuf Gazibegovic", "club": "Sturm Graz", "pos": "DEF", "rating": 79},
-        {"id": 14, "name": "Emanuel Aiwu", "club": "Sturm Graz", "pos": "DEF", "rating": 78},
-        {"id": 15, "name": "Jon Gorenc Stankovic", "club": "Sturm Graz", "pos": "MID", "rating": 82},
-        {"id": 16, "name": "Otar Kiteishvili", "club": "Sturm Graz", "pos": "MID", "rating": 83},
-        {"id": 17, "name": "Tomi Horvat", "club": "Sturm Graz", "pos": "MID", "rating": 80},
-        {"id": 18, "name": "Mika Biereth", "club": "Sturm Graz", "pos": "FWD", "rating": 81},
-        {"id": 19, "name": "Seedy Jatta", "club": "Sturm Graz", "pos": "FWD", "rating": 76},
-        {"id": 20, "name": "William Bøving", "club": "Sturm Graz", "pos": "FWD", "rating": 77},
-        {"id": 21, "name": "Niklas Hedl", "club": "Rapid Wien", "pos": "TW", "rating": 80},
-        {"id": 22, "name": "Serge-Philippe Raux-Yao", "club": "Rapid Wien", "pos": "DEF", "rating": 79},
-        {"id": 23, "name": "Nenad Cvetkovic", "club": "Rapid Wien", "pos": "DEF", "rating": 78},
-        {"id": 24, "name": "Bendegúz Bolla", "club": "Rapid Wien", "pos": "DEF", "rating": 77},
-        {"id": 25, "name": "Lukas Grgic", "club": "Rapid Wien", "pos": "MID", "rating": 78},
-        {"id": 26, "name": "Mamadou Sangare", "club": "Rapid Wien", "pos": "MID", "rating": 79},
-        {"id": 27, "name": "Matthias Seidl", "club": "Rapid Wien", "pos": "MID", "rating": 81},
-        {"id": 28, "name": "Guido Burgstaller", "club": "Rapid Wien", "pos": "FWD", "rating": 79},
-        {"id": 29, "name": "Dion Drena Beljo", "club": "Rapid Wien", "pos": "FWD", "rating": 78},
-        {"id": 30, "name": "Louis Schaub", "club": "Rapid Wien", "pos": "MID", "rating": 77},
-        {"id": 31, "name": "Samuel Sahin-Radlinger", "club": "Austria Wien", "pos": "TW", "rating": 76},
-        {"id": 32, "name": "Lucas Galvao", "club": "Austria Wien", "pos": "DEF", "rating": 76},
-        {"id": 33, "name": "Reinhold Ranftl", "club": "Austria Wien", "pos": "DEF", "rating": 77},
-        {"id": 34, "name": "Tin Plavotic", "club": "Austria Wien", "pos": "DEF", "rating": 74},
-        {"id": 35, "name": "Manfred Fischer", "club": "Austria Wien", "pos": "MID", "rating": 77},
-        {"id": 36, "name": "Abu Barry", "club": "Austria Wien", "pos": "MID", "rating": 75},
-        {"id": 37, "name": "Dominik Fitz", "club": "Austria Wien", "pos": "MID", "rating": 80},
-        {"id": 38, "name": "Maurice Malone", "club": "Austria Wien", "pos": "FWD", "rating": 76},
-        {"id": 39, "name": "Nik Prelec", "club": "Austria Wien", "pos": "FWD", "rating": 75},
-        {"id": 40, "name": "Hakim Guenouche", "club": "Austria Wien", "pos": "DEF", "rating": 73},
-        {"id": 41, "name": "Jörg Siebenhandl", "club": "LASK", "pos": "TW", "rating": 75},
-        {"id": 42, "name": "Philipp Ziereis", "club": "LASK", "pos": "DEF", "rating": 77},
-        {"id": 43, "name": "Andrés Andrade", "club": "LASK", "pos": "DEF", "rating": 78},
-        {"id": 44, "name": "George Bello", "club": "LASK", "pos": "DEF", "rating": 74},
-        {"id": 45, "name": "Robert Zulj", "club": "LASK", "pos": "MID", "rating": 82},
-        {"id": 46, "name": "Sascha Horvath", "club": "LASK", "pos": "MID", "rating": 78},
-        {"id": 47, "name": "Valon Berisha", "club": "LASK", "pos": "MID", "rating": 77},
-        {"id": 48, "name": "Marin Ljubicic", "club": "LASK", "pos": "FWD", "rating": 79},
-        {"id": 49, "name": "Moses Usor", "club": "LASK", "pos": "FWD", "rating": 76},
-        {"id": 50, "name": "Melayro Bogarde", "club": "LASK", "pos": "DEF", "rating": 74},
-        {"id": 51, "name": "Andreas Leitner", "club": "SV Ried", "pos": "TW", "rating": 73},
-        {"id": 52, "name": "Oliver Steurer", "club": "SV Ried", "pos": "DEF", "rating": 72},
-        {"id": 53, "name": "Nikki Havenaar", "club": "SV Ried", "pos": "DEF", "rating": 71},
-        {"id": 54, "name": "Fabian Wohlmuth", "club": "SV Ried", "pos": "DEF", "rating": 72},
-        {"id": 55, "name": "Stefan Nutz", "club": "SV Ried", "pos": "MID", "rating": 75},
-        {"id": 56, "name": "Mark Grosse", "club": "SV Ried", "pos": "MID", "rating": 73},
-        {"id": 57, "name": "Philipp Pomer", "club": "SV Ried", "pos": "MID", "rating": 72},
-        {"id": 58, "name": "Ante Bajic", "club": "SV Ried", "pos": "FWD", "rating": 74},
-        {"id": 59, "name": "Wilfried Eza", "club": "SV Ried", "pos": "FWD", "rating": 73},
-        {"id": 60, "name": "David Bumberger", "club": "SV Ried", "pos": "DEF", "rating": 70},
-        {"id": 61, "name": "Dejan Stojanovic", "club": "SCR Altach", "pos": "TW", "rating": 74},
-        {"id": 62, "name": "Constantin Reiner", "club": "SCR Altach", "pos": "DEF", "rating": 73},
-        {"id": 63, "name": "Paul Koller", "club": "SCR Altach", "pos": "DEF", "rating": 74},
-        {"id": 64, "name": "Sandro Ingolitsch", "club": "SCR Altach", "pos": "DEF", "rating": 72},
-        {"id": 65, "name": "Vesel Demaku", "club": "SCR Altach", "pos": "MID", "rating": 73},
-        {"id": 66, "name": "Mike-Steven Bähre", "club": "SCR Altach", "pos": "MID", "rating": 72},
-        {"id": 67, "name": "Sofian Bahloul", "club": "SCR Altach", "pos": "MID", "rating": 73},
-        {"id": 68, "name": "Lukas Fridrikas", "club": "SCR Altach", "pos": "FWD", "rating": 74},
-        {"id": 69, "name": "Athe Nuhiu", "club": "SCR Altach", "pos": "FWD", "rating": 71},
-        {"id": 70, "name": "Christian Gebauer", "club": "SCR Altach", "pos": "FWD", "rating": 72},
-        {"id": 71, "name": "Nicolas Capaldo", "club": "RB Salzburg", "pos": "MID", "rating": 78},
-        {"id": 72, "name": "Daouda Guindo", "club": "RB Salzburg", "pos": "DEF", "rating": 75},
-        {"id": 73, "name": "Max Johnston", "club": "Sturm Graz", "pos": "DEF", "rating": 75},
-        {"id": 74, "name": "Stefan Hierländer", "club": "Sturm Graz", "pos": "MID", "rating": 74},
-        {"id": 75, "name": "Moritz Oswald", "club": "Rapid Wien", "pos": "MID", "rating": 73},
-        {"id": 76, "name": "Isak Jansson", "club": "Rapid Wien", "pos": "FWD", "rating": 77},
-        {"id": 77, "name": "Matteo Meisl", "club": "Austria Wien", "pos": "DEF", "rating": 72},
-        {"id": 78, "name": "Sanel Saljic", "club": "Austria Wien", "pos": "MID", "rating": 70},
-        {"id": 79, "name": "Branko Jovicic", "club": "LASK", "pos": "MID", "rating": 74},
-        {"id": 80, "name": "Lenny Pintor", "club": "LASK", "pos": "FWD", "rating": 73}
+        # Spieler aus dem hochgeladenen Bild:
+        {"id": 1, "name": "Stankovic", "club": "GAK", "pos": "TW", "rating": 75},[cite: 2]
+        {"id": 2, "name": "Owusu", "club": "GAK", "pos": "VER", "rating": 72},[cite: 2]
+        {"id": 3, "name": "Pines", "club": "GAK", "pos": "VER", "rating": 71},[cite: 2]
+        {"id": 4, "name": "Vraa Jensen", "club": "GAK", "pos": "VER", "rating": 70},[cite: 2]
+        {"id": 5, "name": "Klassen", "club": "GAK", "pos": "VER", "rating": 72},[cite: 2]
+        {"id": 6, "name": "Hermesh", "club": "GAK", "pos": "MF", "rating": 71},[cite: 2]
+        {"id": 7, "name": "Michorl", "club": "GAK", "pos": "MF", "rating": 76},[cite: 2]
+        {"id": 8, "name": "Anderson", "club": "GAK", "pos": "MF", "rating": 73},[cite: 2]
+        {"id": 9, "name": "Lichtenberger", "club": "GAK", "pos": "ST", "rating": 74},[cite: 2]
+        {"id": 10, "name": "Hofleitner", "club": "GAK", "pos": "ST", "rating": 70},[cite: 2]
+        {"id": 11, "name": "Grosse", "club": "GAK", "pos": "ST", "rating": 72},[cite: 2]
+        
+        # Weitere Bundesliga-Spieler zur Erfüllung des 80-Spieler-Pools:
+        {"id": 12, "name": "Alexander Schlager", "club": "RB Salzburg", "pos": "TW", "rating": 82},
+        {"id": 13, "name": "Samson Baidoo", "club": "RB Salzburg", "pos": "VER", "rating": 79},
+        {"id": 14, "name": "Amar Dedic", "club": "RB Salzburg", "pos": "VER", "rating": 82},
+        {"id": 15, "name": "Mads Bidstrup", "club": "RB Salzburg", "pos": "MF", "rating": 80},
+        {"id": 16, "name": "Maurits Kjaergaard", "club": "RB Salzburg", "pos": "MF", "rating": 81},
+        {"id": 17, "name": "Oscar Gloukh", "club": "RB Salzburg", "pos": "MF", "rating": 84},
+        {"id": 18, "name": "Karim Konate", "club": "RB Salzburg", "pos": "ST", "rating": 83},
+        {"id": 19, "name": "Dorgeles Nene", "club": "RB Salzburg", "pos": "ST", "rating": 79},
+        {"id": 20, "name": "Petar Ratkov", "club": "RB Salzburg", "pos": "ST", "rating": 77},
+        {"id": 21, "name": "Joane Gadou", "club": "RB Salzburg", "pos": "VER", "rating": 76},
+        {"id": 22, "name": "Kjell Scherpen", "club": "Sturm Graz", "pos": "TW", "rating": 81},
+        {"id": 23, "name": "Gregory Wüthrich", "club": "Sturm Graz", "pos": "VER", "rating": 80},
+        {"id": 24, "name": "Jusuf Gazibegovic", "club": "Sturm Graz", "pos": "VER", "rating": 79},
+        {"id": 25, "name": "Emanuel Aiwu", "club": "Sturm Graz", "pos": "VER", "rating": 78},
+        {"id": 26, "name": "Jon Gorenc Stankovic", "club": "Sturm Graz", "pos": "MF", "rating": 82},
+        {"id": 27, "name": "Otar Kiteishvili", "club": "Sturm Graz", "pos": "MF", "rating": 83},
+        {"id": 28, "name": "Tomi Horvat", "club": "Sturm Graz", "pos": "MF", "rating": 80},
+        {"id": 29, "name": "Mika Biereth", "club": "Sturm Graz", "pos": "ST", "rating": 81},
+        {"id": 30, "name": "Seedy Jatta", "club": "Sturm Graz", "pos": "ST", "rating": 76},
+        {"id": 31, "name": "William Bøving", "club": "Sturm Graz", "pos": "ST", "rating": 77},
+        {"id": 32, "name": "Niklas Hedl", "club": "Rapid Wien", "pos": "TW", "rating": 80},
+        {"id": 33, "name": "Serge-Philippe Raux-Yao", "club": "Rapid Wien", "pos": "VER", "rating": 79},
+        {"id": 34, "name": "Nenad Cvetkovic", "club": "Rapid Wien", "pos": "VER", "rating": 78},
+        {"id": 35, "name": "Bendegúz Bolla", "club": "Rapid Wien", "pos": "VER", "rating": 77},
+        {"id": 36, "name": "Lukas Grgic", "club": "Rapid Wien", "pos": "MF", "rating": 78},
+        {"id": 37, "name": "Mamadou Sangare", "club": "Rapid Wien", "pos": "MF", "rating": 79},
+        {"id": 38, "name": "Matthias Seidl", "club": "Rapid Wien", "pos": "MF", "rating": 81},
+        {"id": 39, "name": "Guido Burgstaller", "club": "Rapid Wien", "pos": "ST", "rating": 79},
+        {"id": 40, "name": "Dion Drena Beljo", "club": "Rapid Wien", "pos": "ST", "rating": 78},
+        {"id": 41, "name": "Louis Schaub", "club": "Rapid Wien", "pos": "MF", "rating": 77},
+        {"id": 42, "name": "Samuel Sahin-Radlinger", "club": "Austria Wien", "pos": "TW", "rating": 76},
+        {"id": 43, "name": "Lucas Galvao", "club": "Austria Wien", "pos": "VER", "rating": 76},
+        {"id": 44, "name": "Reinhold Ranftl", "club": "Austria Wien", "pos": "VER", "rating": 77},
+        {"id": 45, "name": "Tin Plavotic", "club": "Austria Wien", "pos": "VER", "rating": 74},
+        {"id": 46, "name": "Manfred Fischer", "club": "Austria Wien", "pos": "MF", "rating": 77},
+        {"id": 47, "name": "Abu Barry", "club": "Austria Wien", "pos": "MF", "rating": 75},
+        {"id": 48, "name": "Dominik Fitz", "club": "Austria Wien", "pos": "MF", "rating": 80},
+        {"id": 49, "name": "Maurice Malone", "club": "Austria Wien", "pos": "ST", "rating": 76},
+        {"id": 50, "name": "Nik Prelec", "club": "Austria Wien", "pos": "ST", "rating": 75},
+        {"id": 51, "name": "Hakim Guenouche", "club": "Austria Wien", "pos": "VER", "rating": 73},
+        {"id": 52, "name": "Jörg Siebenhandl", "club": "LASK", "pos": "TW", "rating": 75},
+        {"id": 53, "name": "Philipp Ziereis", "club": "LASK", "pos": "VER", "rating": 77},
+        {"id": 54, "name": "Andrés Andrade", "club": "LASK", "pos": "VER", "rating": 78},
+        {"id": 55, "name": "George Bello", "club": "LASK", "pos": "VER", "rating": 74},
+        {"id": 56, "name": "Robert Zulj", "club": "LASK", "pos": "MF", "rating": 82},
+        {"id": 57, "name": "Sascha Horvath", "club": "LASK", "pos": "MF", "rating": 78},
+        {"id": 58, "name": "Valon Berisha", "club": "LASK", "pos": "MF", "rating": 77},
+        {"id": 59, "name": "Marin Ljubicic", "club": "LASK", "pos": "ST", "rating": 79},
+        {"id": 60, "name": "Moses Usor", "club": "LASK", "pos": "ST", "rating": 76},
+        {"id": 61, "name": "Melayro Bogarde", "club": "LASK", "pos": "VER", "rating": 74},
+        {"id": 62, "name": "Andreas Leitner", "club": "SV Ried", "pos": "TW", "rating": 73},
+        {"id": 63, "name": "Oliver Steurer", "club": "SV Ried", "pos": "VER", "rating": 72},
+        {"id": 64, "name": "Nikki Havenaar", "club": "SV Ried", "pos": "VER", "rating": 71},
+        {"id": 65, "name": "Fabian Wohlmuth", "club": "SV Ried", "pos": "VER", "rating": 72},
+        {"id": 66, "name": "Stefan Nutz", "club": "SV Ried", "pos": "MF", "rating": 75},
+        {"id": 67, "name": "Philipp Pomer", "club": "SV Ried", "pos": "MF", "rating": 72},
+        {"id": 68, "name": "Ante Bajic", "club": "SV Ried", "pos": "ST", "rating": 74},
+        {"id": 69, "name": "Wilfried Eza", "club": "SV Ried", "pos": "ST", "rating": 73},
+        {"id": 70, "name": "David Bumberger", "club": "SV Ried", "pos": "VER", "rating": 70},
+        {"id": 71, "name": "Dejan Stojanovic", "club": "SCR Altach", "pos": "TW", "rating": 74},
+        {"id": 72, "name": "Constantin Reiner", "club": "SCR Altach", "pos": "VER", "rating": 73},
+        {"id": 73, "name": "Paul Koller", "club": "SCR Altach", "pos": "VER", "rating": 74},
+        {"id": 74, "name": "Sandro Ingolitsch", "club": "SCR Altach", "pos": "VER", "rating": 72},
+        {"id": 75, "name": "Vesel Demaku", "club": "SCR Altach", "pos": "MF", "rating": 73},
+        {"id": 76, "name": "Mike-Steven Bähre", "club": "SCR Altach", "pos": "MF", "rating": 72},
+        {"id": 77, "name": "Sofian Bahloul", "club": "SCR Altach", "pos": "MF", "rating": 73},
+        {"id": 78, "name": "Lukas Fridrikas", "club": "SCR Altach", "pos": "ST", "rating": 74},
+        {"id": 79, "name": "Athe Nuhiu", "club": "SCR Altach", "pos": "ST", "rating": 71},
+        {"id": 80, "name": "Christian Gebauer", "club": "SCR Altach", "pos": "ST", "rating": 72}
     ]
 
 # Session State Initialisierung
@@ -219,7 +221,7 @@ elif st.session_state.booster_num <= 4:
     my_team = st.session_state.teams[player_id]
     if my_team:
         team_cols = st.columns(4)
-        positions = ["TW", "DEF", "MID", "FWD"]
+        positions = ["TW", "VER", "MF", "ST"]
         for i, pos in enumerate(positions):
             with team_cols[i]:
                 st.write(f"**{pos}:**")
@@ -228,7 +230,7 @@ elif st.session_state.booster_num <= 4:
 
 # Endbildschirm & Aufstellung
 else:
-    st.balloons()
+    
     st.success("🏆 **DRAFT BEENDET!** Alle 80 Spieler wurden gedraftet.")
     
     formations = ["4-3-3", "4-4-2", "3-5-2", "4-2-3-1"]
@@ -247,7 +249,7 @@ else:
     selected_starters = []
     
     cols = st.columns(4)
-    positions = ["TW", "DEF", "MID", "FWD"]
+    positions = ["TW", "VER", "MF", "ST"]
     
     for i, pos in enumerate(positions):
         with cols[i]:
