@@ -196,19 +196,49 @@ elif st.session_state.booster_num <= 2:
         for idx, card in enumerate(my_pack):
             with cols[idx]:
                 pos_color = POS_COLORS.get(card['pos'], '#000000')
-                with st.container(border=True):
-                    st.markdown(f"### {card['name']}")
-                    st.markdown(
-                        f"📍 **Position:** <span style='background-color:{pos_color}; color:white; padding:2px 8px; border-radius:4px; font-weight:bold;'>{card['pos']}</span>", 
-                        unsafe_allow_html=True
-                    )
-                    st.markdown(f"🛡️ **Verein: **")
-                    
-                    btn_key = f"b{st.session_state.booster_num}_p{st.session_state.pick_num}_{card['id']}"
-                    if st.button(f"Pick", key=btn_key, type="primary", use_container_width=True):
-                        st.session_state.teams[player_id].append(card)
-                        st.session_state.picks_made[player_id] = card
-                        st.rerun()
+                
+                # Farbiger Rahmen & optimiertes Karten-Layout
+                card_html = f"""
+                <div style="
+                    border: 4px solid {pos_color}; 
+                    border-radius: 10px; 
+                    padding: 10px; 
+                    background-color: #1e1e1e; 
+                    text-align: center;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                    margin-bottom: 10px;
+                ">
+                    <div style="
+                        font-size: 15px; 
+                        font-weight: bold; 
+                        color: #ffffff; 
+                        white-space: nowrap; 
+                        overflow: hidden; 
+                        text-overflow: ellipsis;
+                        margin-bottom: 6px;
+                    ">{card['name']}</div>
+                    <div style="margin-bottom: 6px;">
+                        <span style="
+                            background-color: {pos_color}; 
+                            color: white; 
+                            padding: 2px 8px; 
+                            border-radius: 4px; 
+                            font-size: 12px; 
+                            font-weight: bold;
+                        ">{card['pos']}</span>
+                    </div>
+                    <div style="font-size: 12px; color: #cccccc;">
+                        🛡️ <b>{card['club']}</b>
+                    </div>
+                </div>
+                """
+                st.markdown(card_html, unsafe_allow_html=True)
+                
+                btn_key = f"b{st.session_state.booster_num}_p{st.session_state.pick_num}_{card['id']}"
+                if st.button(f"Pick", key=btn_key, type="primary", use_container_width=True):
+                    st.session_state.teams[player_id].append(card)
+                    st.session_state.picks_made[player_id] = card
+                    st.rerun()
 
     if all(pick is not None for pick in st.session_state.picks_made.values()):
         for p_id in range(2):
@@ -265,7 +295,7 @@ else:
         ]
         return ["-"] + sorted(available)
 
-    # CSS für das realistische grüne Spielfeld-Layout
+    # CSS für das grüne Spielfeld-Layout
     st.markdown("""
         <style>
         .pitch-container {
@@ -304,7 +334,7 @@ else:
             pointer-events: none;
         }
         .pos-box {
-            background-color: rgba(0, 0, 0, 0.45);
+            background-color: rgba(0, 0, 0, 0.55);
             padding: 10px;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.3);
