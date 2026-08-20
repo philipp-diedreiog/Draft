@@ -121,7 +121,7 @@ def load_players():
         {"id": 88, "name": "MASSOMBO", "club": "SCR Altach", "pos": "ST"}
     ]
 
-# Session State Initialisierung (2 Spieler)
+# Session State Initialisierung
 if 'game_started' not in st.session_state:
     st.session_state.game_started = False
     st.session_state.teams = {0: [], 1: []}
@@ -244,43 +244,44 @@ elif st.session_state.booster_num <= 2:
                 for p in [x for x in my_team if x['pos'] == pos]:
                     st.write(f"• **{p['name']}** (*{p['club']}*)")
 
-# Endbildschirm & Aufstellung auf dem Spielfeld
+# Endbildschirm: Direktes Spielfeld-Aufstellungs-Layout
 else:
     st.success("🏆 **DRAFT BEENDET!** Alle Booster wurden gewählt.")
-    st.header(f"📋 Aufstellungs-Phase — Spieler {player_id + 1}")
+    st.header(f"📋 Aufstellung — Spieler {player_id + 1}")
     
     my_team = st.session_state.teams[player_id]
     my_lineup = st.session_state.lineups[player_id]
 
-    positions_keys = [
-        "st1", "st2", "st3",
-        "mf1", "mf2", "mf3",
-        "v1", "v2", "v3", "v4",
-        "tw"
-    ]
-
-    # Dynamische Filterung: Alle Spieler verfügbar, aber keine Mehrfachauswahl
+    # Hilfsfunktion für Dropdown-Optionen mit Positions-Kürzel
     def get_options_for_pos(current_pos_key):
         selected_elsewhere = [
             val for k, val in my_lineup.items() 
             if k != current_pos_key and val != "-"
         ]
-        available = [p['name'] for p in my_team if p['name'] not in selected_elsewhere]
+        available = [
+            f"[{p['pos']}] {p['name']} ({p['club']})" 
+            for p in my_team 
+            if f"[{p['pos']}] {p['name']} ({p['club']})" not in selected_elsewhere
+        ]
         return ["-"] + sorted(available)
 
-    # Detailliertes Fußballfeld via CSS
+    # CSS für das realistische grüne Spielfeld-Layout
     st.markdown("""
         <style>
         .pitch-container {
             background-color: #2e7d32;
-            background-image: 
-                linear-gradient(rgba(255,255,255,0.15) 2px, transparent 2px),
-                linear-gradient(90px, rgba(255,255,255,0.05) 50%, transparent 50%);
+            background-image: repeating-linear-gradient(
+                0deg,
+                #2e7d32,
+                #2e7d32 40px,
+                #276a2a 40px,
+                #276a2a 80px
+            );
             border: 4px solid #ffffff;
             border-radius: 12px;
-            padding: 25px 15px;
+            padding: 30px 20px;
             position: relative;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
             margin-bottom: 25px;
         }
         .center-circle {
@@ -288,83 +289,115 @@ else:
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            border: 2px solid rgba(255,255,255,0.4);
+            width: 140px;
+            height: 140px;
+            border: 3px solid rgba(255,255,255,0.6);
             border-radius: 50%;
             pointer-events: none;
         }
-        .pitch-divider {
+        .center-line {
             position: absolute;
             top: 50%;
             left: 0;
             right: 0;
-            border-top: 2px solid rgba(255,255,255,0.4);
+            border-top: 3px solid rgba(255,255,255,0.6);
             pointer-events: none;
         }
-        .section-header {
+        .pos-box {
+            background-color: rgba(0, 0, 0, 0.45);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             text-align: center;
-            color: #ffffff;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        .pos-header {
             font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 13px;
+            margin-bottom: 4px;
+            text-shadow: 1px 1px 2px black;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    st.subheader("🟢 Platziere deine Start-11 auf dem Spielfeld (4-3-3):")
+    st.subheader("🟢 Trage deine Spieler direkt auf dem Spielfeld ein:")
 
+    # Spielfeld mit direkt integrierten Dropdowns
     with st.container():
-        st.markdown('<div class="pitch-container"><div class="center-circle"></div><div class="pitch-divider"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="pitch-container"><div class="center-circle"></div><div class="center-line"></div>', unsafe_allow_html=True)
         
-        # STÜRMER
-        st.markdown('<div class="section-header">⚽ STÜRMER</div>', unsafe_allow_html=True)
+        # 1. STÜRMER-REIHE
         col_st1, col_st2, col_st3 = st.columns(3)
         with col_st1:
-            my_lineup["st1"] = st.selectbox("Stürmer 1", get_options_for_pos("st1"), key="st1_select")
+            st.markdown(f'<div class="pos-box"><div class="pos-header" style="color:{POS_COLORS["ST"]};">⚽ STÜRMER 1</div>', unsafe_allow_html=True)
+            my_lineup["st1"] = st.selectbox("ST 1", get_options_for_pos("st1"), key="st1_select", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
         with col_st2:
-            my_lineup["st2"] = st.selectbox("Stürmer 2", get_options_for_pos("st2"), key="st2_select")
+            st.markdown(f'<div class="pos-box"><div class="pos-header" style="color:{POS_COLORS["ST"]};">⚽ STÜRMER 2</div>', unsafe_allow_html=True)
+            my_lineup["st2"] = st.selectbox("ST 2", get_options_for_pos("st2"), key="st2_select", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
         with col_st3:
-            my_lineup["st3"] = st.selectbox("Stürmer 3", get_options_for_pos("st3"), key="st3_select")
+            st.markdown(f'<div class="pos-box"><div class="pos-header" style="color:{POS_COLORS["ST"]};">⚽ STÜRMER 3</div>', unsafe_allow_html=True)
+            my_lineup["st3"] = st.selectbox("ST 3", get_options_for_pos("st3"), key="st3_select", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<br><br>", unsafe_allow_html=True)
 
-        # MITTELFELD
-        st.markdown('<div class="section-header">🎯 MITTELFELD</div>', unsafe_allow_html=True)
+        # 2. MITTELFELD-REIHE
         col_mf1, col_mf2, col_mf3 = st.columns(3)
         with col_mf1:
-            my_lineup["mf1"] = st.selectbox("Mittelfeld 1", get_options_for_pos("mf1"), key="mf1_select")
+            st.markdown(f'<div class="pos-box"><div class="pos-header" style="color:{POS_COLORS["MF"]};">🎯 MITTELFELD 1</div>', unsafe_allow_html=True)
+            my_lineup["mf1"] = st.selectbox("MF 1", get_options_for_pos("mf1"), key="mf1_select", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
         with col_mf2:
-            my_lineup["mf2"] = st.selectbox("Mittelfeld 2", get_options_for_pos("mf2"), key="mf2_select")
+            st.markdown(f'<div class="pos-box"><div class="pos-header" style="color:{POS_COLORS["MF"]};">🎯 MITTELFELD 2</div>', unsafe_allow_html=True)
+            my_lineup["mf2"] = st.selectbox("MF 2", get_options_for_pos("mf2"), key="mf2_select", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
         with col_mf3:
-            my_lineup["mf3"] = st.selectbox("Mittelfeld 3", get_options_for_pos("mf3"), key="mf3_select")
+            st.markdown(f'<div class="pos-box"><div class="pos-header" style="color:{POS_COLORS["MF"]};">🎯 MITTELFELD 3</div>', unsafe_allow_html=True)
+            my_lineup["mf3"] = st.selectbox("MF 3", get_options_for_pos("mf3"), key="mf3_select", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<br><br>", unsafe_allow_html=True)
 
-        # VERTEIDIGER
-        st.markdown('<div class="section-header">🛡️ VERTEIDIGER</div>', unsafe_allow_html=True)
+        # 3. VERTEIDIGER-REIHE
         col_v1, col_v2, col_v3, col_v4 = st.columns(4)
         with col_v1:
-            my_lineup["v1"] = st.selectbox("Verteidiger 1", get_options_for_pos("v1"), key="v1_select")
+            st.markdown(f'<div class="pos-box"><div class="pos-header" style="color:{POS_COLORS["VER"]};">🛡️ VERTEIDIGER 1</div>', unsafe_allow_html=True)
+            my_lineup["v1"] = st.selectbox("VER 1", get_options_for_pos("v1"), key="v1_select", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
         with col_v2:
-            my_lineup["v2"] = st.selectbox("Verteidiger 2", get_options_for_pos("v2"), key="v2_select")
+            st.markdown(f'<div class="pos-box"><div class="pos-header" style="color:{POS_COLORS["VER"]};">🛡️ VERTEIDIGER 2</div>', unsafe_allow_html=True)
+            my_lineup["v2"] = st.selectbox("VER 2", get_options_for_pos("v2"), key="v2_select", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
         with col_v3:
-            my_lineup["v3"] = st.selectbox("Verteidiger 3", get_options_for_pos("v3"), key="v3_select")
+            st.markdown(f'<div class="pos-box"><div class="pos-header" style="color:{POS_COLORS["VER"]};">🛡️ VERTEIDIGER 3</div>', unsafe_allow_html=True)
+            my_lineup["v3"] = st.selectbox("VER 3", get_options_for_pos("v3"), key="v3_select", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
+            
         with col_v4:
-            my_lineup["v4"] = st.selectbox("Verteidiger 4", get_options_for_pos("v4"), key="v4_select")
+            st.markdown(f'<div class="pos-box"><div class="pos-header" style="color:{POS_COLORS["VER"]};">🛡️ VERTEIDIGER 4</div>', unsafe_allow_html=True)
+            my_lineup["v4"] = st.selectbox("VER 4", get_options_for_pos("v4"), key="v4_select", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<br><br>", unsafe_allow_html=True)
 
-        # TORWART
-        st.markdown('<div class="section-header">🧤 TORWART</div>', unsafe_allow_html=True)
-        _, col_tw, _ = st.columns([1, 2, 1])
+        # 4. TORWART-REIHE
+        _, col_tw, _ = st.columns([1, 1.5, 1])
         with col_tw:
-            my_lineup["tw"] = st.selectbox("Torwart", get_options_for_pos("tw"), key="tw_select")
+            st.markdown(f'<div class="pos-box"><div class="pos-header" style="color:{POS_COLORS["TW"]};">🧤 TORWART</div>', unsafe_allow_html=True)
+            my_lineup["tw"] = st.selectbox("TW", get_options_for_pos("tw"), key="tw_select", label_visibility="collapsed")
+            st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.divider()
-    st.subheader("📊 Übersicht der 2 Teams:")
+    st.subheader("📊 Übersicht der gedrafteten Kader:")
     
     all_team_cols = st.columns(2)
     for p_id in range(2):
